@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: An AWS Lambda application that retuns Hello World.
+Parameters:
+  FunctionName:
+    Type: String
+    Description: Name of the lambda function.
+    AllowedPattern: ^.*[^0-9]$
+    ConstraintDescription: Must end with non-numeric character.
+  ImageUri:
+    Type: String
+    Description: Image URI.
+    AllowedPattern: ^.*$
+    ConstraintDescription: Must end with non-numeric character.
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${FunctionName}-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: !Sub ${FunctionName}-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:*
+                Resource: arn:aws:logs:*:*:*
+      Tags:
+        - Key: "Name"
+          Value: !Sub ${FunctionName}-role
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref FunctionName
+      Architectures:
+        - arm64
+      PackageType: Image
+      Code:
+        ImageUri: !Ref ImageUri
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 5
+      Tags:
+        - Key: "Name"
+          Value: !Ref FunctionName
+      ReservedConcurrentExecutions: 1
