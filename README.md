@@ -1,4 +1,4 @@
-# Sample Lambda Function with Dokcer and Cloudformation Template
+# Sample Lambda Function with Docker and Cloudformation Template
 
 ## Build
 ```
